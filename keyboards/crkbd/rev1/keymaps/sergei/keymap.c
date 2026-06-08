@@ -6,6 +6,11 @@
 #define _LAYER3 3
 #define _LAYER4 4
 
+// Tap: 4 / Hold: Command+Shift+4 (macOS area screenshot)
+enum tap_dance_keycodes {
+    DANCE_SHOT_4,
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_LAYER0] = LAYOUT(
@@ -38,9 +43,44 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_LAYER4] = LAYOUT(
     KC_NUM, KC_TRNS, KC_7, KC_8, KC_9, KC_TRNS,    KC_TRNS, KC_F9,  KC_F8,  KC_F7,   KC_TRNS,  KC_TRNS,
-    KC_TRNS,  KC_TRNS, KC_4, KC_5, KC_6, KC_TRNS,    KC_TRNS, KC_F6,  KC_F5,  KC_F4,   KC_TRNS,  KC_TRNS,
+    KC_TRNS,  KC_TRNS, TD(DANCE_SHOT_4), KC_5, KC_6, KC_TRNS,    KC_TRNS, KC_F6,  KC_F5,  KC_F4,   KC_TRNS,  KC_TRNS,
     KC_TRNS,  KC_0,  KC_1, KC_2, KC_3, KC_TRNS,    KC_TRNS, KC_F3,  KC_F2,  KC_F1,   KC_F10, KC_TRNS,
                          KC_TRNS, KC_TRNS, KC_TRNS,    KC_TRNS, KC_TRNS, KC_TRNS
   )
 
+};
+
+// Oryx-style dual-function: hold action fires at TAPPING_TERM and is held
+// down until release; tap action fires on a quick press.
+typedef enum { TD_NONE, TD_SINGLE_TAP, TD_SINGLE_HOLD } td_state_t;
+
+static td_state_t dance_shot_4_state;
+
+static td_state_t dance_step(tap_dance_state_t *state) {
+    if (state->count == 1) {
+        return (state->interrupted || !state->pressed) ? TD_SINGLE_TAP : TD_SINGLE_HOLD;
+    }
+    return TD_NONE;
+}
+
+void dance_shot_4_finished(tap_dance_state_t *state, void *user_data) {
+    dance_shot_4_state = dance_step(state);
+    switch (dance_shot_4_state) {
+        case TD_SINGLE_TAP:  register_code16(KC_4); break;
+        case TD_SINGLE_HOLD: register_code16(LGUI(LSFT(KC_4))); break;
+        default: break;
+    }
+}
+
+void dance_shot_4_reset(tap_dance_state_t *state, void *user_data) {
+    switch (dance_shot_4_state) {
+        case TD_SINGLE_TAP:  unregister_code16(KC_4); break;
+        case TD_SINGLE_HOLD: unregister_code16(LGUI(LSFT(KC_4))); break;
+        default: break;
+    }
+    dance_shot_4_state = TD_NONE;
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+    [DANCE_SHOT_4] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_shot_4_finished, dance_shot_4_reset),
 };
