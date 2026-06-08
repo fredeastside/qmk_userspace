@@ -11,6 +11,14 @@ enum tap_dance_keycodes {
     DANCE_SHOT_4,
 };
 
+enum custom_keycodes {
+    ST_FATARROW = SAFE_RANGE, // types =>
+    ST_ARROW,                 // types ->
+    PRESET_RED,               // solid underglow: red
+    PRESET_GRN,               // solid underglow: green
+    PRESET_BLU,               // solid underglow: blue
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_LAYER0] = LAYOUT(
@@ -21,8 +29,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [_LAYER1] = LAYOUT(
-    KC_TRNS, KC_TRNS, S(KC_7), S(KC_8), KC_TRNS,   KC_PMNS,    S(KC_MINS),  S(KC_LBRC), S(KC_RBRC), KC_EQL,    QK_MACRO_1, KC_TRNS,
-    KC_TRNS, KC_TRNS, S(KC_4), S(KC_5), S(KC_6), KC_PPLS,    KC_MINS,     KC_LBRC,    KC_RBRC,    S(KC_EQL), QK_MACRO_0, KC_GRV,
+    KC_TRNS, KC_TRNS, S(KC_7), S(KC_8), KC_TRNS,   KC_PMNS,    S(KC_MINS),  S(KC_LBRC), S(KC_RBRC), KC_EQL,    ST_FATARROW, KC_TRNS,
+    KC_TRNS, KC_TRNS, S(KC_4), S(KC_5), S(KC_6), KC_PPLS,    KC_MINS,     KC_LBRC,    KC_RBRC,    S(KC_EQL), ST_ARROW,    KC_GRV,
     KC_TRNS, KC_TRNS, S(KC_1), S(KC_2), S(KC_3), KC_TRNS,      S(KC_COMM),  S(KC_9),    S(KC_0),    S(KC_DOT), S(KC_GRV),  KC_TRNS,
                            KC_TRNS,   KC_TRNS, KC_TRNS,    KC_TRNS,     KC_TRNS,    KC_TRNS
   ),
@@ -35,9 +43,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [_LAYER3] = LAYOUT(
-    RM_TOGG, KC_TRNS, KC_TRNS, KC_TRNS, RM_VALD, RM_VALU,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS, KC_TRNS,
-    KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,   KC_TRNS,      KC_MPRV,  KC_VOLD,  KC_VOLU,  KC_MNXT,  KC_TRNS, KC_TRNS,
-    KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,   KC_TRNS,      KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS, KC_TRNS,
+    UG_TOGG,    UG_NEXT,    UG_HUEU, UG_SATU, UG_VALD, UG_VALU,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS, KC_TRNS,
+    UG_PREV,    UG_HUED,    UG_SATD, UG_SPDU, UG_SPDD, KC_TRNS,    KC_MPRV,  KC_VOLD,  KC_VOLU,  KC_MNXT,  KC_TRNS, KC_TRNS,
+    KC_TRNS,    PRESET_RED, PRESET_GRN, PRESET_BLU, KC_TRNS, KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS, KC_TRNS,
                            KC_TRNS, KC_TRNS,   KC_MSTP,    KC_MPLY,  KC_MUTE,  KC_TRNS
   ),
 
@@ -84,3 +92,37 @@ void dance_shot_4_reset(tap_dance_state_t *state, void *user_data) {
 tap_dance_action_t tap_dance_actions[] = {
     [DANCE_SHOT_4] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_shot_4_finished, dance_shot_4_reset),
 };
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case ST_FATARROW: // =>
+            if (record->event.pressed) {
+                SEND_STRING("=>");
+            }
+            return false;
+        case ST_ARROW: // ->
+            if (record->event.pressed) {
+                SEND_STRING("->");
+            }
+            return false;
+        case PRESET_RED:
+            if (record->event.pressed) {
+                rgblight_mode(1);
+                rgblight_sethsv(0, 255, 255);
+            }
+            return false;
+        case PRESET_GRN:
+            if (record->event.pressed) {
+                rgblight_mode(1);
+                rgblight_sethsv(74, 255, 255);
+            }
+            return false;
+        case PRESET_BLU:
+            if (record->event.pressed) {
+                rgblight_mode(1);
+                rgblight_sethsv(169, 255, 255);
+            }
+            return false;
+    }
+    return true;
+}
