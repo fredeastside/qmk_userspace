@@ -93,6 +93,33 @@ tap_dance_action_t tap_dance_actions[] = {
     [DANCE_SHOT_4] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_shot_4_finished, dance_shot_4_reset),
 };
 
+#ifdef RGBLIGHT_LAYERS
+// Underglow color per active layer (base layer keeps its normal color/animation).
+const rgblight_segment_t PROGMEM layer1_indicator[] = RGBLIGHT_LAYER_SEGMENTS({0, RGBLIGHT_LED_COUNT, HSV_CYAN});
+const rgblight_segment_t PROGMEM layer2_indicator[] = RGBLIGHT_LAYER_SEGMENTS({0, RGBLIGHT_LED_COUNT, HSV_BLUE});
+const rgblight_segment_t PROGMEM layer3_indicator[] = RGBLIGHT_LAYER_SEGMENTS({0, RGBLIGHT_LED_COUNT, HSV_PURPLE});
+const rgblight_segment_t PROGMEM layer4_indicator[] = RGBLIGHT_LAYER_SEGMENTS({0, RGBLIGHT_LED_COUNT, HSV_GREEN});
+
+const rgblight_segment_t* const PROGMEM sergei_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
+    layer1_indicator,
+    layer2_indicator,
+    layer3_indicator,
+    layer4_indicator
+);
+
+void keyboard_post_init_user(void) {
+    rgblight_layers = sergei_rgb_layers;
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    rgblight_set_layer_state(0, layer_state_cmp(state, _LAYER1));
+    rgblight_set_layer_state(1, layer_state_cmp(state, _LAYER2));
+    rgblight_set_layer_state(2, layer_state_cmp(state, _LAYER3));
+    rgblight_set_layer_state(3, layer_state_cmp(state, _LAYER4));
+    return state;
+}
+#endif
+
 // Layer-tap keys (thumbs/pinkies) activate their layer the moment another key is
 // pressed, for snappy layer access. Home row mods are left out so quick letter
 // rolls don't accidentally fire a modifier.
