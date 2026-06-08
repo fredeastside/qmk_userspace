@@ -23,7 +23,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_LAYER0] = LAYOUT(
     CW_TOGG,      KC_Q,              KC_W,              KC_E,              KC_R,              KC_T,            KC_Y,    KC_U,                          KC_I,                          KC_O,                          KC_P,                          KC_BSLS,
-    LT(3,KC_ESC), MT(MOD_LGUI,KC_A), MT(MOD_LALT,KC_S), MT(MOD_LSFT,KC_D), MT(MOD_LCTL,KC_F), KC_G,            KC_H,    MT(MOD_LCTL|MOD_RCTL,KC_J),    MT(MOD_LSFT|MOD_RSFT,KC_K),    MT(MOD_LALT|MOD_RALT,KC_L),    MT(MOD_LGUI|MOD_RGUI,KC_SCLN), LT(4,KC_QUOT),
+    LT(3,KC_ESC), MT(MOD_LGUI,KC_A), MT(MOD_LALT,KC_S), MT(MOD_LSFT,KC_D), MT(MOD_LCTL,KC_F), KC_G,            KC_H,    MT(MOD_RCTL,KC_J),             MT(MOD_RSFT,KC_K),             MT(MOD_RALT,KC_L),             MT(MOD_RGUI,KC_SCLN),          LT(4,KC_QUOT),
     KC_TRNS,        KC_Z,              KC_X,              KC_C,              KC_V,              KC_B,            KC_N,    KC_M,                          KC_COMM,                       KC_DOT,                        KC_SLSH,                       C(G(KC_Q)),
                                                         KC_TRNS,             KC_TAB,            LT(1,KC_SPC),    LT(2,KC_ENT), KC_BSPC,                  KC_TRNS
   ),
@@ -92,6 +92,21 @@ void dance_shot_4_reset(tap_dance_state_t *state, void *user_data) {
 tap_dance_action_t tap_dance_actions[] = {
     [DANCE_SHOT_4] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_shot_4_finished, dance_shot_4_reset),
 };
+
+// Layer-tap keys (thumbs/pinkies) activate their layer the moment another key is
+// pressed, for snappy layer access. Home row mods are left out so quick letter
+// rolls don't accidentally fire a modifier.
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LT(1, KC_SPC):
+        case LT(2, KC_ENT):
+        case LT(3, KC_ESC):
+        case LT(4, KC_QUOT):
+            return true;
+        default:
+            return false;
+    }
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {

@@ -2,8 +2,10 @@
 
 //#define USE_MATRIX_I2C
 
-//#define QUICK_TAP_TERM 0
-//#define TAPPING_TERM 100
+// Home row mod tuning
+#define TAPPING_TERM 200
+#define QUICK_TAP_TERM 0   // holding a mod-tap right after tapping holds the mod, not a key repeat
+#define PERMISSIVE_HOLD    // pick the hold action when another key is tapped inside the tapping term
 
 #ifdef RGBLIGHT_ENABLE
     #define RGBLIGHT_EFFECT_BREATHING
