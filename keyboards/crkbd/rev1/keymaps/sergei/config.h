@@ -4,11 +4,11 @@
 
 // Home row mod tuning
 #define TAPPING_TERM 200
-#define QUICK_TAP_TERM 0   // holding a mod-tap right after tapping holds the mod, not a key repeat
 #define PERMISSIVE_HOLD    // pick the hold action when another key is tapped inside the tapping term
+// QUICK_TAP_TERM left at default: tap a home-row mod then hold it again to
+// auto-repeat the tap (e.g. hold j/k/l to scroll in vim).
 
 #ifdef RGBLIGHT_ENABLE
-    #define RGBLIGHT_LAYERS    // per-keymap-layer underglow color indicators
     #define RGBLIGHT_EFFECT_BREATHING
     #define RGBLIGHT_EFFECT_RAINBOW_MOOD
     #define RGBLIGHT_EFFECT_RAINBOW_SWIRL
