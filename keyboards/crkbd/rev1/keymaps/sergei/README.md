@@ -19,6 +19,10 @@ ported from a ZSA Voyager Oryx layout. The full layout lives in `keymap.c`
   screenshot). Implemented with tap dance so the hold fires at `TAPPING_TERM`.
 - `=>` and `->` macros on layer 1 (`SEND_STRING`, no VIA macros needed).
 - RGB underglow controls and three solid-color presets (red / green / blue) on layer 3.
+- RGB layer indicators: underglow color tracks the active layer (symbols=cyan,
+  nav=blue, media=purple, numbers=green; base keeps its normal color).
+- Tuned home row mods (`TAPPING_TERM 200`, `PERMISSIVE_HOLD`, `QUICK_TAP_TERM 0`,
+  plus per-key `HOLD_ON_OTHER_KEY_PRESS` on the layer-tap keys only).
 - `QK_BOOT` on layer 2 to enter the bootloader from the keyboard itself.
 
 ## Layers
@@ -44,24 +48,55 @@ qmk compile -kb crkbd/rev1 -km sergei
 
 ## Flash
 
-Split board: flash each half separately with the same firmware.
+Split board: flash each half separately with the same firmware, using the same
+command for both:
 
 ```
 qmk flash -kb crkbd/rev1 -km sergei
 ```
 
-1. Plug in the **left** half, run the command, then enter the bootloader
-   (press `QK_BOOT` on layer 2, or double-tap the physical reset, or short
-   RST-GND twice). It flashes automatically.
-2. Plug in the **right** half, run the **same** command again, enter its bootloader.
-3. Reconnect the TRRS cable (with USB unplugged) and plug the **left** half into the
-   computer.
+To flash a half it must be (1) plugged into USB and (2) in its bootloader. Enter
+the bootloader by any of: pressing `QK_BOOT` (layer 2, top-right), the physical
+reset button, or briefly bridging the controller's `RST` and `GND` pads twice.
 
-No extra flags are required: the feature toggles live in `rules.mk`, the bootloader
-is set there too, and DFU is auto-detected. Add `-bl dfu` only if auto-detection fails.
+No extra flags are required: feature toggles and the bootloader live in `rules.mk`,
+and DFU is auto-detected. Add `-bl dfu` only if auto-detection fails.
+
+> **Cable safety:** never plug or unplug the **TRRS** cable while USB is connected.
+> The jack momentarily shorts its contacts and can damage a controller. Set the
+> TRRS once with USB unplugged, then only ever move the **USB** cable. The flow
+> below never disconnects the TRRS.
+
+### Recommended procedure (TRRS stays connected)
+
+Leave the TRRS cable joining both halves the whole time; only the USB cable moves.
+
+1. Plug USB into the **left** half. Reset it into the bootloader (`QK_BOOT` works
+   here since left is the master), then run the command. Unplug USB.
+2. Plug USB into the **right** half. Reset it into the bootloader, run the **same**
+   command. Unplug USB.
+3. Plug USB back into the **left** half for normal use.
+
+### When the reset button is only on the right half
+
+`QK_BOOT` only resets the half that is currently the **master**, and handedness is
+master-left, so:
+
+- **Right half:** plug USB into the **right** half, press its physical reset button,
+  then run the flash command. (TRRS can stay connected; the left half is just
+  powered and idle.)
+- **Left half:** with the **TRRS** still connected, plug USB into the **left** half
+  (so left = master), then press `QK_BOOT` on the **right** half (hold the right
+  `Enter` thumb for layer 2, tap the top-right key). The right half's keypress
+  travels over TRRS and resets the master = left half into the bootloader. Run the
+  flash command.
+
+If you prefer not to use the `QK_BOOT` route for the left half, bridge `RST`-`GND`
+twice on the left controller instead (works on any controller, button or not).
 
 ## Files
 
-- `keymap.c` - layers, tap dance, and custom keycodes (`process_record_user`).
-- `config.h` - RGBLIGHT effects and limits.
+- `keymap.c` - layers, tap dance, custom keycodes (`process_record_user`), RGB
+  layer indicators, and the per-key `HOLD_ON_OTHER_KEY_PRESS` rule.
+- `config.h` - home row mod timing, RGBLIGHT layers/effects and limits.
 - `rules.mk` - feature toggles (`CAPS_WORD`, `TAP_DANCE`, `LTO`) and `BOOTLOADER`.
