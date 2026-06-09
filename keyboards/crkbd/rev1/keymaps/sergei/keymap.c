@@ -108,6 +108,43 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+// Layer-driven underglow: layers 1/2/4 force a fixed color while held; layers 0
+// and 3 keep the live color so the presets and UG_* adjustment keys (on layer 3)
+// still work. The live color + mode are captured on the way into a themed layer
+// and restored on the way out, all noeeprom so the saved base is never clobbered.
+static bool    theme_active = false;
+static uint8_t base_h, base_s, base_v, base_mode;
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    switch (get_highest_layer(state)) {
+        case _LAYER1:
+        case _LAYER2:
+        case _LAYER4:
+            if (!theme_active) {
+                base_h    = rgblight_get_hue();
+                base_s    = rgblight_get_sat();
+                base_v    = rgblight_get_val();
+                base_mode = rgblight_get_mode();
+                theme_active = true;
+            }
+            rgblight_mode_noeeprom(1); // static light, matches the presets below
+            switch (get_highest_layer(state)) {
+                case _LAYER1: rgblight_sethsv_noeeprom( 21, 255, 255); break; // orange
+                case _LAYER2: rgblight_sethsv_noeeprom( 85, 255, 255); break; // green
+                case _LAYER4: rgblight_sethsv_noeeprom(191, 255, 255); break; // purple
+            }
+            break;
+        default: // layers 0 and 3 keep the live color
+            if (theme_active) {
+                rgblight_mode_noeeprom(base_mode);
+                rgblight_sethsv_noeeprom(base_h, base_s, base_v);
+                theme_active = false;
+            }
+            break;
+    }
+    return state;
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case ST_FATARROW: // =>
