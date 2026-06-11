@@ -176,9 +176,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 rgblight_sethsv(169, 255, 255);
             }
             return false;
-        case PRESET_WAVE: // animated rainbow swirl, like sea waves
+        case PRESET_WAVE: // animated multicolor rainbow flowing across the board, like sea waves
             if (record->event.pressed) {
-                rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL);
+                rgb_matrix_mode(RGB_MATRIX_CYCLE_LEFT_RIGHT);
             }
             return false;
     }

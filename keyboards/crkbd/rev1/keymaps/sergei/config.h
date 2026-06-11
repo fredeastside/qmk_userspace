@@ -8,19 +8,9 @@
 // QUICK_TAP_TERM left at default: tap a home-row mod then hold it again to
 // auto-repeat the tap (e.g. hold j/k/l to scroll in vim).
 
-#ifdef RGBLIGHT_ENABLE
-    #define RGBLIGHT_EFFECT_BREATHING
-    #define RGBLIGHT_EFFECT_RAINBOW_MOOD
-    #define RGBLIGHT_EFFECT_RAINBOW_SWIRL
-    #define RGBLIGHT_EFFECT_SNAKE
-    #define RGBLIGHT_EFFECT_KNIGHT
-    #define RGBLIGHT_EFFECT_CHRISTMAS
-    #define RGBLIGHT_EFFECT_STATIC_GRADIENT
-    #define RGBLIGHT_EFFECT_RGB_TEST
-    #define RGBLIGHT_EFFECT_ALTERNATING
-    #define RGBLIGHT_EFFECT_TWINKLE
-    #define RGBLIGHT_LIMIT_VAL 120
-    #define RGBLIGHT_HUE_STEP 10
-    #define RGBLIGHT_SAT_STEP 17
-    #define RGBLIGHT_VAL_STEP 17
+// This board runs RGB Matrix (per-LED), not RGBLIGHT. Animations are off unless
+// explicitly enabled here. SOLID_COLOR (used by the color presets) is always
+// available; CYCLE_LEFT_RIGHT is the flowing multicolor "sea waves" effect.
+#ifdef RGB_MATRIX_ENABLE
+    #define ENABLE_RGB_MATRIX_CYCLE_LEFT_RIGHT
 #endif
