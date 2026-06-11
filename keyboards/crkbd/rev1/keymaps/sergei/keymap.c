@@ -15,8 +15,9 @@ enum custom_keycodes {
     ST_FATARROW = SAFE_RANGE, // types =>
     ST_ARROW,                 // types ->
     PRESET_RED,               // solid underglow: red
-    PRESET_GRN,               // solid underglow: green
+    PRESET_YLW,               // solid underglow: yellow
     PRESET_BLU,               // solid underglow: blue
+    PRESET_WAVE,              // animated rainbow swirl (sea waves)
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -45,7 +46,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_LAYER3] = LAYOUT(
     UG_TOGG,    UG_NEXT,    UG_HUEU, UG_SATU, UG_VALD, UG_VALU,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS, KC_TRNS,
     UG_PREV,    UG_HUED,    UG_SATD, UG_SPDU, UG_SPDD, KC_TRNS,    KC_MPRV,  KC_VOLD,  KC_VOLU,  KC_MNXT,  KC_TRNS, KC_TRNS,
-    KC_TRNS,    PRESET_RED, PRESET_GRN, PRESET_BLU, KC_TRNS, KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS, KC_TRNS,
+    KC_TRNS,    PRESET_RED, PRESET_YLW, PRESET_BLU, PRESET_WAVE, KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS,    KC_TRNS, KC_TRNS,
                            KC_TRNS, KC_TRNS,   KC_MSTP,    KC_MPLY,  KC_MUTE,  KC_TRNS
   ),
 
@@ -163,16 +164,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 rgblight_sethsv(0, 255, 255);
             }
             return false;
-        case PRESET_GRN:
+        case PRESET_YLW:
             if (record->event.pressed) {
                 rgblight_mode(1);
-                rgblight_sethsv(74, 255, 255);
+                rgblight_sethsv(43, 255, 255);
             }
             return false;
         case PRESET_BLU:
             if (record->event.pressed) {
                 rgblight_mode(1);
                 rgblight_sethsv(169, 255, 255);
+            }
+            return false;
+        case PRESET_WAVE: // animated rainbow swirl, like sea waves
+            if (record->event.pressed) {
+                rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL);
             }
             return false;
     }

@@ -18,7 +18,8 @@ ported from a ZSA Voyager Oryx layout. The full layout lives in `keymap.c`
 - Tap/hold screenshot key on layer 4: tap `4`, hold for `Cmd+Shift+4` (macOS area
   screenshot). Implemented with tap dance so the hold fires at `TAPPING_TERM`.
 - `=>` and `->` macros on layer 1 (`SEND_STRING`, no VIA macros needed).
-- RGB underglow controls and three solid-color presets (red / green / blue) on layer 3.
+- RGB underglow controls with solid-color presets (red / yellow / blue) plus an
+  animated rainbow swirl ("sea waves") preset on layer 3.
 - RGB layer indicators: underglow color tracks the active layer (symbols=cyan,
   nav=blue, media=purple, numbers=green; base keeps its normal color).
 - Tuned home row mods (`TAPPING_TERM 200`, `PERMISSIVE_HOLD`, `QUICK_TAP_TERM 0`,
@@ -51,7 +52,7 @@ Legend:
 - `4*` = tap `4`, hold for Cmd+Shift+4 (screenshot).
 - `<Tab` / `Tab>` = Ctrl+Shift+Tab / Ctrl+Tab (prev / next tab).
 - Layer 3 RGB: `RGB` toggle, `Mode`/`Mode-` next/prev animation,
-  `Hue/Sat/Val/Spd +/-` adjust, `Red/Grn/Blu` solid-color presets.
+  `Hue/Sat/Val/Spd +/-` adjust, `Red/Yel/Blu` solid-color presets, `Wave` rainbow swirl.
 
 ```
 Layer 0 - Base
@@ -100,7 +101,7 @@ Layer 3 - Media + RGB
 |------+------+------+------+------+------|    |------+------+------+------+------+------|
 |Mode- | Hue- | Sat- | Spd+ | Spd- |      |    | Prev | Vol- | Vol+ | Next |      |      |
 |------+------+------+------+------+------|    |------+------+------+------+------+------|
-|      | Red  | Grn  | Blu  |      |      |    |      |      |      |      |      |      |
+|      | Red  | Yel  | Blu  | Wave |      |    |      |      |      |      |      |      |
 `------+------+------+------+------+------'    `------+------+------+------+------+------'
                      ,------+------+------.    ,------+------+------.
                      |      |      | Stop |    | Play | Mute |      |
