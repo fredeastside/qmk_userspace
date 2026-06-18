@@ -18,6 +18,10 @@ ported from a ZSA Voyager Oryx layout. The full layout lives in `keymap.c`
 - Tap/hold screenshot key on layer 4: tap `4`, hold for `Cmd+Shift+4` (macOS area
   screenshot). Implemented with tap dance so the hold fires at `TAPPING_TERM`.
 - `=>` and `->` macros on layer 1 (`SEND_STRING`, no VIA macros needed).
+- Repeat Key on the left outer thumb: tap repeats the last key, hold is layer 4
+  (numbers). Implemented as a custom hold-tap (`LT4_REP`) because `LT()` can't
+  carry the non-basic `QK_REP` keycode; the layer engages immediately on press so
+  rolling into a digit works like the real layer-tap keys.
 - RGB underglow controls with solid-color presets (red / yellow / blue) plus an
   animated rainbow swirl ("sea waves") preset on layer 3.
 - RGB layer indicators: underglow color tracks the active layer (symbols=cyan,
@@ -28,16 +32,19 @@ ported from a ZSA Voyager Oryx layout. The full layout lives in `keymap.c`
 
 ## Layers
 
-- **0 - Base:** QWERTY letters, home row mods, Caps Word. Thumbs: Tab,
-  `LT(1, Space)` / `LT(2, Enter)`, Backspace. Bottom-right is `Ctrl+Cmd+Q` (lock screen).
+- **0 - Base:** QWERTY letters, home row mods, Caps Word. Thumbs (outer to inner):
+  left = Repeat / `LT4_REP`, Tab, `LT(1, Space)`; right = `LT(2, Enter)`, Backspace,
+  `LT(3, Delete)`. Left pinky is plain `Esc`. Bottom-right is `Ctrl+Cmd+Q` (lock screen).
 - **1 - Symbols** (hold left thumb / `Space`): brackets, operators, shifted digits,
   and the `=>` / `->` macros.
 - **2 - Navigation** (hold right thumb / `Enter`): arrows, Home/End/PgUp/PgDn,
   tab switching, left-hand modifiers, and `QK_BOOT` (top-right).
-- **3 - Media + RGB** (`LT(3, Esc)`): media transport and volume on the right;
-  underglow toggle / mode / hue / sat / value / speed and color presets on the left.
-- **4 - Numbers + Function** (`LT(4, ')`): numpad cluster, F1-F10, Num Lock, and the
-  tap/hold screenshot key.
+- **3 - Media + RGB** (hold right outer thumb / `Delete`): media transport and volume
+  on the right; underglow toggle / mode / hue / sat / value / speed and color presets
+  on the left.
+- **4 - Numbers + Function** (hold left outer thumb / `LT4_REP`, or `LT(4, ')`):
+  numpad cluster, F1-F10, Num Lock, and the tap/hold screenshot key. Reachable from
+  two keys while getting used to the new thumb.
 
 ## Layout diagrams
 
@@ -46,7 +53,8 @@ Legend:
 - Blank cells are transparent (fall through to the layer below).
 - Home row holds (layer 0) are mods: left `A S D F` = Gui / Alt / Shift / Ctrl,
   right `J K L ;` = Ctrl / Shift / Alt / Gui.
-- `Esc3` / `'4` = tap the key, hold for layer 3 / layer 4.
+- `'4` = tap `'`, hold for layer 4.
+- `Del3` = tap Delete, hold for layer 3. `Rep4` = tap Repeat last key, hold for layer 4.
 - `Spc1` / `Ent2` = tap Space / Enter, hold for layer 1 / layer 2.
 - `CAPS` = Caps Word, `Lock` = Cmd+Ctrl+Q, `BOOT` = `QK_BOOT`.
 - `4*` = tap `4`, hold for Cmd+Shift+4 (screenshot).
@@ -60,12 +68,12 @@ Layer 0 - Base
 ,------+------+------+------+------+------.    ,------+------+------+------+------+------.
 | CAPS |  Q   |  W   |  E   |  R   |  T   |    |  Y   |  U   |  I   |  O   |  P   |  \   |
 |------+------+------+------+------+------|    |------+------+------+------+------+------|
-| Esc3 |  A   |  S   |  D   |  F   |  G   |    |  H   |  J   |  K   |  L   |  ;   |  '4  |
+| Esc  |  A   |  S   |  D   |  F   |  G   |    |  H   |  J   |  K   |  L   |  ;   |  '4  |
 |------+------+------+------+------+------|    |------+------+------+------+------+------|
 |      |  Z   |  X   |  C   |  V   |  B   |    |  N   |  M   |  ,   |  .   |  /   | Lock |
 `------+------+------+------+------+------'    `------+------+------+------+------+------'
                      ,------+------+------.    ,------+------+------.
-                     |      | Tab  | Spc1 |    | Ent2 | Bsp  |      |
+                     | Rep4 | Tab  | Spc1 |    | Ent2 | Bsp  | Del3 |
                      `------+------+------'    `------+------+------'
 
 Layer 1 - Symbols

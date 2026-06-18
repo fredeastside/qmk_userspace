@@ -18,15 +18,16 @@ enum custom_keycodes {
     PRESET_YLW,               // solid underglow: yellow
     PRESET_BLU,               // solid underglow: blue
     PRESET_WAVE,              // animated rainbow swirl (sea waves)
+    LT4_REP,                  // hold: layer 4 (numbers); tap: Repeat last key
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_LAYER0] = LAYOUT(
     CW_TOGG,      KC_Q,              KC_W,              KC_E,              KC_R,              KC_T,            KC_Y,    KC_U,                          KC_I,                          KC_O,                          KC_P,                          KC_BSLS,
-    LT(3,KC_ESC), MT(MOD_LGUI,KC_A), MT(MOD_LALT,KC_S), MT(MOD_LSFT,KC_D), MT(MOD_LCTL,KC_F), KC_G,            KC_H,    MT(MOD_RCTL,KC_J),             MT(MOD_RSFT,KC_K),             MT(MOD_RALT,KC_L),             MT(MOD_RGUI,KC_SCLN),          LT(4,KC_QUOT),
+    KC_ESC,       MT(MOD_LGUI,KC_A), MT(MOD_LALT,KC_S), MT(MOD_LSFT,KC_D), MT(MOD_LCTL,KC_F), KC_G,            KC_H,    MT(MOD_RCTL,KC_J),             MT(MOD_RSFT,KC_K),             MT(MOD_RALT,KC_L),             MT(MOD_RGUI,KC_SCLN),          LT(4,KC_QUOT),
     KC_TRNS,        KC_Z,              KC_X,              KC_C,              KC_V,              KC_B,            KC_N,    KC_M,                          KC_COMM,                       KC_DOT,                        KC_SLSH,                       C(G(KC_Q)),
-                                                        KC_TRNS,             KC_TAB,            LT(1,KC_SPC),    LT(2,KC_ENT), KC_BSPC,                  KC_TRNS
+                                                        LT4_REP,             KC_TAB,            LT(1,KC_SPC),    LT(2,KC_ENT), KC_BSPC,                  LT(3,KC_DEL)
   ),
 
   [_LAYER1] = LAYOUT(
@@ -101,7 +102,7 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LT(1, KC_SPC):
         case LT(2, KC_ENT):
-        case LT(3, KC_ESC):
+        case LT(3, KC_DEL):
         case LT(4, KC_QUOT):
             return true;
         default:
@@ -146,8 +147,38 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 }
 
+// LT4_REP: a layer-tap that QMK's LT() can't express because Repeat (QK_REP) is
+// not a basic keycode. Hold = layer 4 (numbers), engaged immediately on press so
+// rolling into a digit lands on the right layer, just like the real LT keys. Tap
+// = Repeat the last key (re-sent via the repeat feature's tracked keycode/mods).
+// lt4_used suppresses the tap action whenever any other key fired during the hold.
+static bool     lt4_active = false;
+static bool     lt4_used   = false;
+static uint16_t lt4_timer;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (lt4_active && record->event.pressed && keycode != LT4_REP) {
+        lt4_used = true; // a real key was pressed while layer 4 was held
+    }
+
     switch (keycode) {
+        case LT4_REP:
+            if (record->event.pressed) {
+                lt4_timer  = timer_read();
+                lt4_active = true;
+                lt4_used   = false;
+                layer_on(_LAYER4);
+            } else {
+                layer_off(_LAYER4);
+                lt4_active = false;
+                if (!lt4_used && timer_elapsed(lt4_timer) < TAPPING_TERM) {
+                    uint8_t mods = get_last_mods();
+                    register_mods(mods);
+                    tap_code16(get_last_keycode());
+                    unregister_mods(mods);
+                }
+            }
+            return false;
         case ST_FATARROW: // =>
             if (record->event.pressed) {
                 SEND_STRING("=>");
