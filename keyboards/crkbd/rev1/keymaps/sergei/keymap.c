@@ -156,6 +156,13 @@ static bool     lt4_active = false;
 static bool     lt4_used   = false;
 static uint16_t lt4_timer;
 
+// The Repeat feature records the "last key" in process_last_key, which runs
+// before process_record_user. Without this, tapping LT4_REP would remember
+// LT4_REP itself, so Repeat would target LT4_REP instead of the real last key.
+bool remember_last_key_user(uint16_t keycode, keyrecord_t *record, uint8_t *remembered_mods) {
+    return keycode != LT4_REP;
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (lt4_active && record->event.pressed && keycode != LT4_REP) {
         lt4_used = true; // a real key was pressed while layer 4 was held
@@ -172,10 +179,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 layer_off(_LAYER4);
                 lt4_active = false;
                 if (!lt4_used && timer_elapsed(lt4_timer) < TAPPING_TERM) {
-                    uint8_t mods = get_last_mods();
-                    register_mods(mods);
-                    tap_code16(get_last_keycode());
-                    unregister_mods(mods);
+                    // Invoke Repeat through its own pipeline so wrapped last
+                    // keycodes (mod-taps, layer-taps, shifted keys) resolve
+                    // correctly. tap_code16(get_last_keycode()) would emit the
+                    // raw wrapper bits instead (e.g. a stray F13).
+                    keyevent_t e = record->event;
+                    e.pressed = true;
+                    repeat_key_invoke(&e);
+                    e.pressed = false;
+                    repeat_key_invoke(&e);
                 }
             }
             return false;
